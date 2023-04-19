@@ -1,0 +1,11 @@
+bin
+@dot
+@dot.log
+.DS_Store
+.jatlas-settings
+.cache
+MANIFEST.MF.bak
+feature.xml.bak
+**/target/
+product/workspace
+**/.polyglot.META-INF

@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Pythagoras
+Bundle-SymbolicName: com.ensoftcorp.pythagoras;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: ENSOFTCORP
+Automatic-Module-Name: com.ensoftcorp.pythagoras
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: com.ensoftcorp.pythagoras.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
+ com.ensoftcorp.atlas.db,
+ com.ensoftcorp.atlas.core
