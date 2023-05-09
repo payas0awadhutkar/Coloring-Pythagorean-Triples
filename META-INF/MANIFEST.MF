@@ -11,4 +11,6 @@ Bundle-Activator: com.ensoftcorp.pythagoras.Activator
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  com.ensoftcorp.atlas.db,
- com.ensoftcorp.atlas.core
+ com.ensoftcorp.atlas.core,
+ com.ensoftcorp.open.commons;bundle-version="4.2.2",
+ com.ensoftcorp.open.commons.ui;bundle-version="4.2.2"

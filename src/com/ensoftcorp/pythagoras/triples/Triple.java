@@ -1,58 +1,17 @@
 package com.ensoftcorp.pythagoras.triples;
-
+import java.util.Arrays;
 import java.util.Objects;
-
-import com.ensoftcorp.atlas.core.db.graph.Edge;
-import com.ensoftcorp.atlas.core.db.graph.Graph;
-import com.ensoftcorp.atlas.core.db.graph.Node;
-import com.ensoftcorp.atlas.core.xcsg.XCSG;
-import com.ensoftcorp.pythagoras.xcsg.TripleXCSG;
-
-//a^2 + b^2 = c^2, a < b
 
 public class Triple {
 
-	private Node tripleNode;
-	
-	private Node aNode, bNode, cNode;
-	
-	private int a,b,c;
+	private int a;
+	private int b;
+	private int c;
 	
 	public Triple(int a, int b, int c) {
 		this.a = a;
 		this.b = b;
 		this.c = c;
-		this.createTripleNode();
-	}
-	
-	private void createTripleNode() {
-		this.aNode = Graph.U.createNode();
-		aNode.tag(TripleXCSG.Number);
-		aNode.putAttr(XCSG.name, this.a + "");
-		this.bNode = Graph.U.createNode();
-		bNode.tag(TripleXCSG.Number);
-		bNode.putAttr(XCSG.name, this.b + "");
-		this.cNode = Graph.U.createNode();
-		this.cNode.tag(TripleXCSG.Number);
-		this.cNode.putAttr(XCSG.name, this.c + "");
-		Edge e1 = Graph.U.createEdge(aNode, cNode);
-		e1.tag(TripleXCSG.Triple_Edge);
-		Edge e2 = Graph.U.createEdge(bNode, cNode);
-		e2.tag(TripleXCSG.Triple_Edge);
-		this.tripleNode = Graph.U.createNode();
-		this.tripleNode.tag(TripleXCSG.Number);
-		String tripleName = this.toString();
-		this.tripleNode.putAttr(XCSG.name, tripleName);
-		Edge e3 = Graph.U.createEdge(this.tripleNode, this.aNode);
-		e3.tag(XCSG.Contains);
-		Edge e4 = Graph.U.createEdge(this.tripleNode, this.bNode);
-		e4.tag(XCSG.Contains);
-		Edge e5 = Graph.U.createEdge(this.tripleNode, this.cNode);
-		e5.tag(XCSG.Contains);
-	}
-	
-	public Node getTripleNode() {
-		return this.tripleNode;
 	}
 	
 	public int a() {
@@ -67,26 +26,36 @@ public class Triple {
 		return this.c;
 	}
 	
-	public Node aNode() {
-		return this.aNode;
-	}
-	
-	public Node bNode() {
-		return this.bNode;
-	}
-	
-	public Node cNode() {
-		return this.cNode;
-	}
-	
 	@Override
 	public String toString() {
-		return "(" + this.a + "," + this.b + "," + this.c + ")";
+		return "[a=" + a + ", b=" + b + ", c=" + c + "]";
 	}
-
+	
 	@Override
 	public int hashCode() {
-		return Objects.hash(a, b, c);
+		int [] arr = {a, b, c};
+		Arrays.sort(arr);
+		return Objects.hash(arr[0], arr[1], arr[2]);
+	}
+	
+	public boolean equivalent(Triple other) {
+		boolean aSide = this.a == other.a || this.a == other.b || this.a == other.c;
+		boolean bSide = this.b == other.a || this.b == other.b || this.b == other.c;
+		boolean cSide = this.c == other.a || this.c == other.b || this.c == other.c;
+		int count = 0;
+		if(aSide) {
+			count++;
+		}
+		if(bSide) {
+			count++;
+		}
+		if(cSide) {
+			count++;
+		}
+		if(count == 1) {
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -98,7 +67,6 @@ public class Triple {
 		if (getClass() != obj.getClass())
 			return false;
 		Triple other = (Triple) obj;
-		return a == other.a && b == other.b && c == other.c;
+		return ((a == other.a && b == other.b) || (a == other.b && b == other.a))&& c == other.c;
 	}
-
 }
