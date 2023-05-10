@@ -8,46 +8,46 @@ import com.ensoftcorp.atlas.core.db.graph.Node;
 import com.ensoftcorp.atlas.core.xcsg.XCSG;
 import com.ensoftcorp.pythagoras.xcsg.TripleXCSG;
 
-//a^2 + b^2 = c^2, a < b
+//x^2 + y^2 = z^2, x < y
 
 public class Triple {
 
 	private Node tripleNode;
 	
-	private Node aNode, bNode, cNode;
+	private Node xNode, yNode, zNode;
 	
-	private int a,b,c;
+	private int x,y,z;
 	
-	public Triple(int a, int b, int c) {
-		this.a = a;
-		this.b = b;
-		this.c = c;
+	public Triple(int x, int y, int z) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
 		this.createTripleNode();
 	}
 	
 	private void createTripleNode() {
-		this.aNode = Graph.U.createNode();
-		aNode.tag(TripleXCSG.Number);
-		aNode.putAttr(XCSG.name, this.a + "");
-		this.bNode = Graph.U.createNode();
-		bNode.tag(TripleXCSG.Number);
-		bNode.putAttr(XCSG.name, this.b + "");
-		this.cNode = Graph.U.createNode();
-		this.cNode.tag(TripleXCSG.Number);
-		this.cNode.putAttr(XCSG.name, this.c + "");
-		Edge e1 = Graph.U.createEdge(aNode, cNode);
+		this.xNode = Graph.U.createNode();
+		xNode.tag(TripleXCSG.Number);
+		xNode.putAttr(XCSG.name, this.x + "");
+		this.yNode = Graph.U.createNode();
+		yNode.tag(TripleXCSG.Number);
+		yNode.putAttr(XCSG.name, this.y + "");
+		this.zNode = Graph.U.createNode();
+		this.zNode.tag(TripleXCSG.Number);
+		this.zNode.putAttr(XCSG.name, this.z + "");
+		Edge e1 = Graph.U.createEdge(xNode, zNode);
 		e1.tag(TripleXCSG.Triple_Edge);
-		Edge e2 = Graph.U.createEdge(bNode, cNode);
+		Edge e2 = Graph.U.createEdge(yNode, zNode);
 		e2.tag(TripleXCSG.Triple_Edge);
 		this.tripleNode = Graph.U.createNode();
-		this.tripleNode.tag(TripleXCSG.Number);
+		this.tripleNode.tag(TripleXCSG.Triple);
 		String tripleName = this.toString();
 		this.tripleNode.putAttr(XCSG.name, tripleName);
-		Edge e3 = Graph.U.createEdge(this.tripleNode, this.aNode);
+		Edge e3 = Graph.U.createEdge(this.tripleNode, this.xNode);
 		e3.tag(XCSG.Contains);
-		Edge e4 = Graph.U.createEdge(this.tripleNode, this.bNode);
+		Edge e4 = Graph.U.createEdge(this.tripleNode, this.yNode);
 		e4.tag(XCSG.Contains);
-		Edge e5 = Graph.U.createEdge(this.tripleNode, this.cNode);
+		Edge e5 = Graph.U.createEdge(this.tripleNode, this.zNode);
 		e5.tag(XCSG.Contains);
 	}
 	
@@ -56,37 +56,44 @@ public class Triple {
 	}
 	
 	public int a() {
-		return this.a;
+		return this.x;
 	}
 	
 	public int b() {
-		return this.b;
+		return this.y;
 	}
 	
 	public int c() {
-		return this.c;
+		return this.z;
 	}
 	
-	public Node aNode() {
-		return this.aNode;
+	public Node xNode() {
+		return this.xNode;
 	}
 	
-	public Node bNode() {
-		return this.bNode;
+	public Node yNode() {
+		return this.yNode;
 	}
 	
-	public Node cNode() {
-		return this.cNode;
+	public Node zNode() {
+		return this.zNode;
+	}
+	
+	public void clear() {
+		Graph.U.delete(this.xNode);
+		Graph.U.delete(this.yNode);
+		Graph.U.delete(this.zNode);
+		Graph.U.delete(this.tripleNode);
 	}
 	
 	@Override
 	public String toString() {
-		return "(" + this.a + "," + this.b + "," + this.c + ")";
+		return "(" + this.x + "," + this.y + "," + this.z + ")";
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(a, b, c);
+		return Objects.hash(x, y, z);
 	}
 
 	@Override
@@ -98,7 +105,7 @@ public class Triple {
 		if (getClass() != obj.getClass())
 			return false;
 		Triple other = (Triple) obj;
-		return a == other.a && b == other.b && c == other.c;
+		return x == other.x && y == other.y && z == other.z;
 	}
 
 }

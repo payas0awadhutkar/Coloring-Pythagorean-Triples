@@ -6,10 +6,20 @@ public interface TripleXCSG {
 	
 	public final static String Triple = "XCSG.Math.Triple";
 	
+	public final static String SuperTriple = "XCSG.Math.SuperTriple";
+	
+	public final static String TSetMember = "XCSG.Math.TSetMember";
+	
+	public final static String SuperTripleConnection = "XCSG.Math.SuperTripleConnection";
+	
 	public final static String Number_Edge = "XCSG.Math.Number_Edge";
 	
 	public final static String Triple_Edge = "XCSG.Math.Triple_Edge";
 	
 	public final static String Share_Edge = "XCSG.Math.Share_Edge";
+	
+	public final static String tSet = "XCSG.Math.tSet";
+	
+	public final static String sharedNumber = "XCSG.Math.sharedNumber";
 
 }
