@@ -6,7 +6,7 @@ public interface TripleXCSG {
 	
 	public final static String Triple = "XCSG.Math.Triple";
 	
-	public final static String SuperTriple = "XCSG.Math.SuperTriple";
+	public final static String TSet = "XCSG.Math.TSet";
 	
 	public final static String TSetMember = "XCSG.Math.TSetMember";
 	

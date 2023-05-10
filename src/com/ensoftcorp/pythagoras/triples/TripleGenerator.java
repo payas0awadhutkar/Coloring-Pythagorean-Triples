@@ -44,7 +44,7 @@ public class TripleGenerator {
 			AtlasSet<Node> tripleSet = superNodeMap.get(i);
 			if(tripleSet.size() >= 3) {
 				Node superNode = Graph.U.createNode();
-				superNode.tag(TripleXCSG.SuperTriple);
+				superNode.tag(TripleXCSG.TSet);
 				superNode.putAttr(XCSG.name, "T(" + i + ")");
 				Set<Integer> nums = new HashSet<Integer>();
 				for(Node tripleNode: tripleSet) {
