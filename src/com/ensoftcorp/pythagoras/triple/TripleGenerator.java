@@ -1,34 +1,23 @@
-package com.ensoftcorp.pythagoras.triples;
+package com.ensoftcorp.pythagoras.triple;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import com.ensoftcorp.atlas.core.db.graph.Edge;
 import com.ensoftcorp.atlas.core.db.graph.Graph;
 import com.ensoftcorp.atlas.core.db.graph.Node;
-import com.ensoftcorp.atlas.core.db.set.AtlasHashSet;
 import com.ensoftcorp.atlas.core.db.set.AtlasSet;
-import com.ensoftcorp.atlas.core.log.Log;
 import com.ensoftcorp.atlas.core.query.Q;
 import com.ensoftcorp.atlas.core.query.Query;
-import com.ensoftcorp.atlas.core.script.Common;
 import com.ensoftcorp.atlas.core.xcsg.XCSG;
+import com.ensoftcorp.pythagoras.triples.util.TripleUtils;
 import com.ensoftcorp.pythagoras.xcsg.TripleXCSG;
 
 public class TripleGenerator {
 
-	private static AtlasSet<Node> tripleNodes;
-
-	private static Map<Node,Triple> tripleMap;
-
-	public static Q run(int n) {
-		tripleNodes = new AtlasHashSet<Node>();
-		tripleMap = new HashMap<Node,Triple>();
+	public static void run(int n) {
 		generate(n);
 		formTSetNodes(n);
-		return Common.empty();
 	}
 
 	private static void formTSetNodes(int n) {
@@ -43,10 +32,8 @@ public class TripleGenerator {
 			for(Node iTripleNode: iTripleNodes) {
 				Edge e = Graph.U.createEdge(iTSetNode, iTripleNode);
 				e.tag(TripleXCSG.TSetMember);
-				Triple triple = tripleMap.get(iTripleNode);
-				nums.add(triple.a());
-				nums.add(triple.b());
-				nums.add(triple.c());
+				Set<Integer> tripleNums = TripleUtils.getNumbers(iTripleNode);
+				nums.addAll(tripleNums);
 			}
 			iTSetNode.putAttr(TripleXCSG.tSetLiterals, nums.toString());
 			for(Node iTripleNode1: iTripleNodes) {
@@ -61,7 +48,7 @@ public class TripleGenerator {
 		}
 	}
 
-	public static void generate(int n) {
+	private static void generate(int n) {
 
 		if(n < 5) {
 			return;
@@ -75,7 +62,7 @@ public class TripleGenerator {
 		//					System.out.println();
 		//				}
 		//				if(a % 2 == 0 || b % 2 == 0) {
-		//					if(gcd(a,b) == 1) {
+		//					if(TripleUtils.gcd(a,b) == 1) {
 		//						z = a*a + b*b;
 		//						if(z <= n) {
 		//							x = a*a - b*b;
@@ -113,34 +100,47 @@ public class TripleGenerator {
 		for(int a = 2; a < n; a++) {
 			for(int b = 1; b < a; b++) {
 				int csquare = a*a + b*b;
-				if(isPerfectSquare(csquare)) {
+				if(TripleUtils.isPerfectSquare(csquare)) {
 					int c = (int) Math.sqrt(csquare);
 					if(c <= n) {
-						Triple triple = new Triple(b,a,c);
-						Node tripleNode = triple.getTripleNode();
-						tripleNodes.add(tripleNode);
-						tripleMap.put(tripleNode, triple);
+						createTripleNode(a,b,c);
 					}
 				}
 			}
 		}
 
-		Log.info("Number of Triples: " + tripleNodes.size());
+		
 	}
-
-	private static boolean isPerfectSquare(int x) {
-		if (x >= 0) {
-			int rootX = (int) Math.sqrt(x);
-			return ((rootX * rootX) == x);
+	
+	private static void createTripleNode(int a, int b, int c) {
+		if(a > b) {
+			int t = a;
+			a = b;
+			b = t;
 		}
-		return false;
+		Node aNode = Graph.U.createNode();
+		aNode.tag(TripleXCSG.Number);
+		aNode.putAttr(XCSG.name, a + "");
+		Node bNode = Graph.U.createNode();
+		bNode.tag(TripleXCSG.Number);
+		bNode.putAttr(XCSG.name, b + "");
+		Node cNode = Graph.U.createNode();
+		cNode.tag(TripleXCSG.Number);
+		cNode.putAttr(XCSG.name, c + "");
+		Edge e1 = Graph.U.createEdge(aNode, cNode);
+		e1.tag(TripleXCSG.Triple_Edge);
+		Edge e2 = Graph.U.createEdge(bNode, cNode);
+		e2.tag(TripleXCSG.Triple_Edge);
+		Node tripleNode = Graph.U.createNode();
+		tripleNode.tag(TripleXCSG.Triple);
+		String tripleName = "(" + a + "," + b + "," + c + ")";
+		tripleNode.putAttr(XCSG.name, tripleName);
+		Edge e3 = Graph.U.createEdge(tripleNode, aNode);
+		e3.tag(XCSG.Contains);
+		Edge e4 = Graph.U.createEdge(tripleNode, bNode);
+		e4.tag(XCSG.Contains);
+		Edge e5 = Graph.U.createEdge(tripleNode, cNode);
+		e5.tag(XCSG.Contains);
 	}
-
-	//	private static int gcd(int a, int b) {
-	//		if (b == 0) {
-	//			return a;
-	//		}
-	//		return gcd(b, a % b);
-	//	}
 
 }
