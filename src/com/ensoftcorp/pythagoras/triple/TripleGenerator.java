@@ -26,6 +26,7 @@ public class TripleGenerator {
 			Node iTSetNode = Graph.U.createNode();
 			iTSetNode.tag(TripleXCSG.TSet);
 			iTSetNode.putAttr(XCSG.name, "T(" + i + ")");
+			iTSetNode.putAttr(TripleXCSG.tSetNumber, i + "");
 			Set<Integer> nums = new HashSet<Integer>();
 			Q iTripleNodesQ = numberNodesQ.selectNode(XCSG.name,i+"");
 			AtlasSet<Node> iTripleNodes = iTripleNodesQ.parent().eval().nodes();

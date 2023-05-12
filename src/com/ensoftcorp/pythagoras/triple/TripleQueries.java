@@ -1,6 +1,5 @@
 package com.ensoftcorp.pythagoras.triple;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import com.ensoftcorp.atlas.core.db.graph.Edge;
@@ -12,16 +11,21 @@ import com.ensoftcorp.atlas.core.query.Q;
 import com.ensoftcorp.atlas.core.query.Query;
 import com.ensoftcorp.atlas.core.script.Common;
 import com.ensoftcorp.atlas.core.script.CommonQueries;
+import com.ensoftcorp.pythagoras.triples.util.TripleUtils;
 import com.ensoftcorp.pythagoras.xcsg.TripleXCSG;
 
 public class TripleQueries {
 	
 	public static Q computeOrbit(Q triple) {
 		Q orbit = Common.empty();
-		
-		
-		
-		return Common.empty();
+		Set<Integer> tripleNumbers = TripleUtils.getNumbers(triple);
+		for(Integer tripleNumber: tripleNumbers) {
+			Q tSetNodeQ = Query.universe().nodes(TripleXCSG.TSet).selectNode(TripleXCSG.tSetNumber,tripleNumber + "");
+			Q tSetMembers = Query.universe().edges(TripleXCSG.TSetMember).successors(tSetNodeQ);
+			orbit = orbit.union(tSetMembers);
+		}
+		orbit = orbit.difference(triple);
+		return orbit;
 	}
 	
 	public static Q myInduce(Q nodes) {
