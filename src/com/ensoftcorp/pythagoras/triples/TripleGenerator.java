@@ -28,8 +28,8 @@ public class TripleGenerator {
 		tripleMap = new HashMap<Node,Triple>();
 		generate(n);
 		formConnections(n);
-		Map<Integer, AtlasSet<Node>> superNodeMap = computeTSets(n);
-		Map<Node, Set<Integer>> s = formSuperNodes(superNodeMap);
+
+		Map<Node, Set<Integer>> s = formTSetNodes(n);
 		//		AtlasSet<Edge> e = filterFurther(s);
 		//		// AtlasSet<Edge> e2 = evenFurther(e);
 		//		Log.info("#Edges: " + e.size());
@@ -38,77 +38,34 @@ public class TripleGenerator {
 		return Common.empty();
 	}
 
-	private static Map<Node, Set<Integer>> formSuperNodes(Map<Integer, AtlasSet<Node>> superNodeMap) {
+	private static Map<Node, Set<Integer>> formTSetNodes(int n) {
+		Map<Integer, AtlasSet<Node>> tSetNodeMap = computeTSets(n);
 		Map<Node,Set<Integer>> s = new HashMap<Node,Set<Integer>>();
-		for(Integer i : superNodeMap.keySet()) {
-			AtlasSet<Node> tripleSet = superNodeMap.get(i);
+		for(Integer i : tSetNodeMap.keySet()) {
+			AtlasSet<Node> tripleSet = tSetNodeMap.get(i);
 			if(tripleSet.size() >= 3) {
-				Node superNode = Graph.U.createNode();
-				superNode.tag(TripleXCSG.TSet);
-				superNode.putAttr(XCSG.name, "T(" + i + ")");
+				Node tSetNode = Graph.U.createNode();
+				tSetNode.tag(TripleXCSG.TSet);
+				tSetNode.putAttr(XCSG.name, "T(" + i + ")");
 				Set<Integer> nums = new HashSet<Integer>();
 				for(Node tripleNode: tripleSet) {
-					Edge e = Graph.U.createEdge(superNode, tripleNode);
+					Edge e = Graph.U.createEdge(tSetNode, tripleNode);
 					e.tag(TripleXCSG.TSetMember);
 					Triple triple = tripleMap.get(tripleNode);
 					nums.add(triple.a());
 					nums.add(triple.b());
 					nums.add(triple.c());
 				}
-				s.put(superNode, nums);
+				s.put(tSetNode, nums);
 			}
 		}
-		Log.info("#SuperNodes formed: " + s.keySet().size());
+		Log.info("#TSetNodes formed: " + s.keySet().size());
 		return s;
-	}
-
-	private static AtlasSet<Edge> filterFurther(Map<Node, Set<Integer>> s) {
-		AtlasSet<Edge> eSet = new AtlasHashSet<Edge>();
-		Set<Node> superNodes = s.keySet();
-		for(Node superNode1: superNodes) {
-			Set<Integer> num1 = s.get(superNode1);
-			for(Node superNode2: superNodes) {
-				if(!superNode1.equals(superNode2)) {
-					Set<Integer> num2 = s.get(superNode2);
-					Set<Integer> intersection = new HashSet<Integer>(num1);
-					intersection.retainAll(num2);
-					if(intersection.size() >= 3) {
-						Edge e = Graph.U.createEdge(superNode1, superNode2);
-						e.tag(TripleXCSG.SuperTripleConnection);
-						e.putAttr("nums", intersection);
-						eSet.add(e);
-					}
-				}
-			}
-		}
-		return eSet;
-	}
-
-	private static AtlasSet<Edge> evenFurther(AtlasSet<Edge> eSet) {
-		AtlasSet<Edge> filteredEdgeSet = new AtlasHashSet<Edge>();
-		for(Edge e1: eSet) {
-			for(Edge e2: eSet) {
-				if(!e1.equals(e2)) {
-					Set<Integer> num1 = (Set<Integer>) e1.getAttr("nums");
-					Set<Integer> num2 = (Set<Integer>) e2.getAttr("nums");
-					Set<Integer> intersection = new HashSet<Integer>(num1);
-					intersection.retainAll(num2);
-					if(!intersection.isEmpty()) {
-						filteredEdgeSet.add(e1);
-						filteredEdgeSet.add(e2);
-					}
-				}
-			}
-		}
-		return filteredEdgeSet;
 	}
 
 	private static void formConnections(int n) {
 		Q numberNodes = Query.universe().nodes(TripleXCSG.Number);
 		for(int i = 1; i <= n; i++) {
-			if(i == 7825) {
-				System.out.println();
-			}
 			Q iNodes = numberNodes.selectNode(XCSG.name,i+"");
 			AtlasSet<Node> iTriples = iNodes.parent().eval().nodes();
 			for(Node iTriple1: iTriples) {
@@ -128,37 +85,24 @@ public class TripleGenerator {
 		int count = 0;
 		for(Node tripleNode: tripleNodes) {
 			AtlasSet<Edge> outEdges = tripleNode.out(TripleXCSG.Share_Edge);
-			int x = (int) (outEdges.size());
-			Integer degree = Integer.valueOf(x);
-			if(degree >= 6) {
-				//				for(Edge inEdge: inEdges) {
-				//					Integer sharedNumber = Integer.valueOf(inEdge.getAttr(TripleXCSG.sharedNumber).toString());
-				//					if(!superNodeMap.containsKey(sharedNumber)) {
-				//						AtlasSet<Node> tripleSet = new AtlasHashSet<Node>();
-				//						superNodeMap.put(sharedNumber, tripleSet);
-				//					}
-				//					AtlasSet<Node> tripleSet = superNodeMap.get(sharedNumber);
-				//					tripleSet.add(tripleNode);
-				//				}
-				Set<Integer> sharedNumbers = new HashSet<Integer>();
-				for(Edge outEdge: outEdges) {
-					Integer sharedNumber = Integer.valueOf(outEdge.getAttr(TripleXCSG.sharedNumber).toString());
-					sharedNumbers.add(sharedNumber);
+			Set<Integer> sharedNumbers = new HashSet<Integer>();
+			for(Edge outEdge: outEdges) {
+				Integer sharedNumber = Integer.valueOf(outEdge.getAttr(TripleXCSG.sharedNumber).toString());
+				sharedNumbers.add(sharedNumber);
+				if(!superNodeMap.containsKey(sharedNumber)) {
+					AtlasSet<Node> tripleSet = new AtlasHashSet<Node>();
+					superNodeMap.put(sharedNumber, tripleSet);
+				}
+			}
+			if(sharedNumbers.size() == 3) {
+				count = count + 1;
+				for(Integer sharedNumber: sharedNumbers) {
 					if(!superNodeMap.containsKey(sharedNumber)) {
 						AtlasSet<Node> tripleSet = new AtlasHashSet<Node>();
 						superNodeMap.put(sharedNumber, tripleSet);
 					}
-				}
-				if(sharedNumbers.size() == 3) {
-					count = count + 1;
-					for(Integer sharedNumber: sharedNumbers) {
-						if(!superNodeMap.containsKey(sharedNumber)) {
-							AtlasSet<Node> tripleSet = new AtlasHashSet<Node>();
-							superNodeMap.put(sharedNumber, tripleSet);
-						}
-						AtlasSet<Node> tripleSet = superNodeMap.get(sharedNumber);
-						tripleSet.add(tripleNode);
-					}
+					AtlasSet<Node> tripleSet = superNodeMap.get(sharedNumber);
+					tripleSet.add(tripleNode);
 				}
 			}
 		}

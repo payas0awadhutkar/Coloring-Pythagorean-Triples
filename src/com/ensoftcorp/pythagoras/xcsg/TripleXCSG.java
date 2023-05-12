@@ -10,7 +10,7 @@ public interface TripleXCSG {
 	
 	public final static String TSetMember = "XCSG.Math.TSetMember";
 	
-	public final static String SuperTripleConnection = "XCSG.Math.SuperTripleConnection";
+	public final static String TSet_Edge = "XCSG.Math.TSet_Edge";
 	
 	public final static String Number_Edge = "XCSG.Math.Number_Edge";
 	
@@ -18,7 +18,7 @@ public interface TripleXCSG {
 	
 	public final static String Share_Edge = "XCSG.Math.Share_Edge";
 	
-	public final static String tSet = "XCSG.Math.tSet";
+	public final static String tSetNumber = "XCSG.Math.tSetNumber";
 	
 	public final static String sharedNumber = "XCSG.Math.sharedNumber";
 
