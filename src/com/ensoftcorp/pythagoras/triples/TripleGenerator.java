@@ -27,89 +27,38 @@ public class TripleGenerator {
 		tripleNodes = new AtlasHashSet<Node>();
 		tripleMap = new HashMap<Node,Triple>();
 		generate(n);
-		formConnections(n);
-
-		Map<Node, Set<Integer>> s = formTSetNodes(n);
-		//		AtlasSet<Edge> e = filterFurther(s);
-		//		// AtlasSet<Edge> e2 = evenFurther(e);
-		//		Log.info("#Edges: " + e.size());
-		// TripleMatcher.matchTriples(tripleNodes);
-		// TripleMatcher.matchTriples2(tripleNodes);
+		formTSetNodes(n);
 		return Common.empty();
 	}
 
-	private static Map<Node, Set<Integer>> formTSetNodes(int n) {
-		Map<Integer, AtlasSet<Node>> tSetNodeMap = computeTSets(n);
-		Map<Node,Set<Integer>> s = new HashMap<Node,Set<Integer>>();
-		for(Integer i : tSetNodeMap.keySet()) {
-			AtlasSet<Node> tripleSet = tSetNodeMap.get(i);
-			if(tripleSet.size() >= 3) {
-				Node tSetNode = Graph.U.createNode();
-				tSetNode.tag(TripleXCSG.TSet);
-				tSetNode.putAttr(XCSG.name, "T(" + i + ")");
-				Set<Integer> nums = new HashSet<Integer>();
-				for(Node tripleNode: tripleSet) {
-					Edge e = Graph.U.createEdge(tSetNode, tripleNode);
-					e.tag(TripleXCSG.TSetMember);
-					Triple triple = tripleMap.get(tripleNode);
-					nums.add(triple.a());
-					nums.add(triple.b());
-					nums.add(triple.c());
-				}
-				s.put(tSetNode, nums);
-			}
-		}
-		Log.info("#TSetNodes formed: " + s.keySet().size());
-		return s;
-	}
-
-	private static void formConnections(int n) {
-		Q numberNodes = Query.universe().nodes(TripleXCSG.Number);
+	private static void formTSetNodes(int n) {
+		Q numberNodesQ = Query.universe().nodes(TripleXCSG.Number);
 		for(int i = 1; i <= n; i++) {
-			Q iNodes = numberNodes.selectNode(XCSG.name,i+"");
-			AtlasSet<Node> iTriples = iNodes.parent().eval().nodes();
-			for(Node iTriple1: iTriples) {
-				for(Node iTriple2: iTriples) {
-					if(!iTriple1.equals(iTriple2)) {
-						Edge e = Graph.U.createEdge(iTriple1, iTriple2);
+			Node iTSetNode = Graph.U.createNode();
+			iTSetNode.tag(TripleXCSG.TSet);
+			iTSetNode.putAttr(XCSG.name, "T(" + i + ")");
+			Set<Integer> nums = new HashSet<Integer>();
+			Q iTripleNodesQ = numberNodesQ.selectNode(XCSG.name,i+"");
+			AtlasSet<Node> iTripleNodes = iTripleNodesQ.parent().eval().nodes();
+			for(Node iTripleNode: iTripleNodes) {
+				Edge e = Graph.U.createEdge(iTSetNode, iTripleNode);
+				e.tag(TripleXCSG.TSetMember);
+				Triple triple = tripleMap.get(iTripleNode);
+				nums.add(triple.a());
+				nums.add(triple.b());
+				nums.add(triple.c());
+			}
+			iTSetNode.putAttr(TripleXCSG.tSetLiterals, nums.toString());
+			for(Node iTripleNode1: iTripleNodes) {
+				for(Node iTripleNode2: iTripleNodes) {
+					if(!iTripleNode1.equals(iTripleNode2)) {
+						Edge e = Graph.U.createEdge(iTripleNode1, iTripleNode2);
 						e.tag(TripleXCSG.Share_Edge);
 						e.putAttr(TripleXCSG.sharedNumber, i + "");
 					}
 				}
 			}
 		}
-	}
-
-	public static Map<Integer, AtlasSet<Node>> computeTSets(int n) {
-		Map<Integer,AtlasSet<Node>> superNodeMap = new HashMap<Integer,AtlasSet<Node>>();
-		int count = 0;
-		for(Node tripleNode: tripleNodes) {
-			AtlasSet<Edge> outEdges = tripleNode.out(TripleXCSG.Share_Edge);
-			Set<Integer> sharedNumbers = new HashSet<Integer>();
-			for(Edge outEdge: outEdges) {
-				Integer sharedNumber = Integer.valueOf(outEdge.getAttr(TripleXCSG.sharedNumber).toString());
-				sharedNumbers.add(sharedNumber);
-				if(!superNodeMap.containsKey(sharedNumber)) {
-					AtlasSet<Node> tripleSet = new AtlasHashSet<Node>();
-					superNodeMap.put(sharedNumber, tripleSet);
-				}
-			}
-			if(sharedNumbers.size() == 3) {
-				count = count + 1;
-				for(Integer sharedNumber: sharedNumbers) {
-					if(!superNodeMap.containsKey(sharedNumber)) {
-						AtlasSet<Node> tripleSet = new AtlasHashSet<Node>();
-						superNodeMap.put(sharedNumber, tripleSet);
-					}
-					AtlasSet<Node> tripleSet = superNodeMap.get(sharedNumber);
-					tripleSet.add(tripleNode);
-				}
-			}
-		}
-		Log.info("Filtered Triples: " + count);
-		Log.info("#TSets: " + superNodeMap.keySet().size());
-		return superNodeMap;
-
 	}
 
 	public static void generate(int n) {
